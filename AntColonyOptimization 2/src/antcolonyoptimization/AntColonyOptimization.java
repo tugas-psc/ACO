@@ -13,14 +13,14 @@ import java.util.Random;
 
 /*
  * default 
- * private double c = 1.0;             //number of trails
- * private double alpha = 1;           //pheromone importance
- * private double beta = 5;            //distance priority
- * private double evaporation = 0.5;
- * private double Q = 500;             //pheromone left on trail per ant
- * private double antFactor = 0.8;     //no of ants per node
- * private double randomFactor = 0.01; //introducing randomness
- * private int maxIterations = 1000;
+ * private double c = 1.0;             //jumlah trails
+ * private double alpha = 1;           //nilai kepentingan pheromone
+ * private double beta = 5;            //nilai prioritas jarak
+ * private double evaporation = 0.5;    //koefisien penguapan pheromone
+ * private double Q = 500;             //jumlah pheromone yang ditinggalkan semut di jalur yang dilewati
+ * private double antFactor = 0.8;     //banyaknya semut yang digunakan per kota
+ * private double randomFactor = 0.01; //faktor random
+ * private int maxIterations = 1000;    //jumlah iterasi maksimum
  */
 
 public class AntColonyOptimization {
