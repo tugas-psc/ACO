@@ -2,6 +2,7 @@ package antcolonyoptimization;
 
 
 import antcolonyoptimization.Ant;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,9 +48,47 @@ public class AntColonyOptimization {
 
     private int[] bestTourOrder;
     private double bestTourLength;
-    
+    private DecimalFormat df;
+    /**
+     * Constructor dengan atribut yang sudah diset nilai defaultnya.
+     * @param cities : List kota yang akan dicari solusinya.
+     */
+    public AntColonyOptimization(List<City> cities){
+        c = 1.0;
+        alpha = 1;
+        beta = 5;
+        evaporation = 0.5;
+        Q = 500;
+        antFactor = 0.8;
+        randomFactor = 0.01;
+        maxIterations = 1000;
+        this.cities.addAll(cities);
+        df = new DecimalFormat("#.##");
+        graph = generateDistanceBetweenCities(cities.size());
+        numberOfCities = cities.size();
+        numberOfAnts = (int) (numberOfCities * antFactor);
+
+        trails = new double[numberOfCities][numberOfCities];
+        probabilities = new double[numberOfCities];
+
+        for (int i = 0; i < numberOfAnts; i++) {
+            ants.add(new Ant(numberOfCities));
+        }
+    }
+    /**
+     * Constructor dengan parameter yang menerima input sesuai keinginan user
+     * @param tr : jumlah trails original
+     * @param al : nilai kepentingan pheromone
+     * @param be : nilai prioritas jarak
+     * @param ev : koefisien penguapan pheromone
+     * @param q : jumlah pheromone yang ditinggalkan semut di jalur yang dilewati
+     * @param af : banyaknya semut yang digunakan per kota
+     * @param rf : faktor random
+     * @param iter : jumlah iterasi program maksimal
+     * @param cities : List kota yang akan dicari solusinya.
+     */
     public AntColonyOptimization(double tr, double al, double be, double ev,
-            double q, double af, double rf, int iter, int noOfCities,List<City> cities) {
+            double q, double af, double rf, int iter,List<City> cities) {
         c = tr;
         alpha = al;
         beta = be;
@@ -59,8 +98,9 @@ public class AntColonyOptimization {
         randomFactor = rf;
         maxIterations = iter;
         this.cities.addAll(cities);
-        graph = generateDistanceBetweenCities(noOfCities);
-        numberOfCities = noOfCities;
+        df = new DecimalFormat("#.##");
+        graph = generateDistanceBetweenCities(cities.size());
+        numberOfCities = cities.size();
         numberOfAnts = (int) (numberOfCities * antFactor);
 
         trails = new double[numberOfCities][numberOfCities];
@@ -74,7 +114,7 @@ public class AntColonyOptimization {
     public String printCities(){
         String res = "";
         for(int i=0;i<numberOfCities;i++){
-            res += cities.get(i).getId();
+            res += cities.get(i).getId()+" ";
         }
         return res;
     }
@@ -83,7 +123,7 @@ public class AntColonyOptimization {
         this.cities.add(newCity);
     }
     /**
-     * Generate initial solution
+     * Menghitung jarak dari masing-masing kota ke semua kota lainnya.
      */
     public double[][] generateDistanceBetweenCities(int n) {
         double[][] cityMatrix = new double[n][n];
@@ -93,45 +133,51 @@ public class AntColonyOptimization {
                 if (i == j) {
                     cityMatrix[i][j] = 0;
                 } else {
-                    cityMatrix[i][j] = calculateDistance(cities.get(i), cities.get(j));
+                    double distance = calculateDistance(cities.get(i), cities.get(j));
+                    cityMatrix[i][j] = Double.valueOf(df.format(distance));
                     cityMatrix[j][i] = cityMatrix[i][j];
                 }
             }
         }
 
-        s += ("\t");
-        for (int i = 0; i < n; i++) {
-            s += (cities.get(i).getId() + "\t");
-        }
-        s += "\n";
-
-        for (int i = 0; i < n; i++) {
-            s += (cities.get(i).getId() + "\t");
-            for (int j = 0; j < n; j++) {
-                s += (cityMatrix[i][j] + "\t");
-            }
-            s += "\n";
-        }
-
-        int sum = 0;
-
-        for (int i = 0; i < n - 1; i++) {
-            sum += cityMatrix[i][i + 1];
-        }
-        sum += cityMatrix[n - 1][0];
-        s += ("\nNaive solution 0-1-2-...-n-0 = " + sum + "\n");
+//        s += ("\t");
+//        for (int i = 0; i < n; i++) {
+//            s += (cities.get(i).getId() + "\t");
+//        }
+//        s += "\n";
+//
+//        for (int i = 0; i < numberOfCities; i++) {
+//            s += (cities.get(i).getId() + "\t");
+//            for (int j = 0; j < numberOfCities; j++) {
+//                s += (cityMatrix[i][j] + "\t");
+//            }
+//            s += "\n";
+//        }
+//
+//        int sum = 0;
+////
+//        for (int i = 0; i < numberOfCities -1; i++) {
+//            sum += cityMatrix[i][i + 1];
+//        }
+//        sum += cityMatrix[numberOfCities -1 ][0];
+//        s += ("\nNaive solution 0-1-2-...-n-0 = " + sum + "\n");
         return cityMatrix;
     }
-
+    /**
+     * Menghitung jarak garis lurus antara 2 kota
+     * @param c1 : kota 1 
+     * @param c2 : kota 2
+     * @return jarak garis lurus antara kota c1 dengan kota c2
+     */
     public double calculateDistance(City c1, City c2) {
-        double x = Math.pow(c2.getX() - c2.getX(), 2);
-        double y = Math.pow(c2.getY() - c2.getY(), 2);
+        double x = Math.pow(c2.getX() - c1.getX(), 2);
+        double y = Math.pow(c2.getY() - c1.getY(), 2);
         double res = Math.sqrt(x + y);
         return res;
     }
 
     /**
-     * Perform ant optimisation
+     * Method untuk memulai Ant Colony Optimization
      */
     public void startAntOptimization() {
         for (int i = 1; i <= 5; i++) {
@@ -139,10 +185,11 @@ public class AntColonyOptimization {
             solve();
             s += "\n";
         }
+        System.out.println(s);
     }
 
     /**
-     * Use this method to run the main logic
+     * Method untuk menjalankan simulasi
      */
     public int[] solve() {
         setupAnts();
@@ -152,13 +199,14 @@ public class AntColonyOptimization {
             updateTrails();
             updateBest();
         }
-        s += ("\nBest tour length: " + (bestTourLength - numberOfCities));
+        double bestTourLengthFormatted = bestTourLength - numberOfCities;
+        s += ("\nBest tour length: " + (Double.valueOf(df.format(bestTourLengthFormatted))));
         s += ("\nBest tour order: " + Arrays.toString(bestTourOrder));
         return bestTourOrder.clone();
     }
 
     /**
-     * Prepare ants for the simulation
+     * Menyiapkan semut untuk simulasi
      */
     private void setupAnts() {
         for (int i = 0; i < numberOfAnts; i++) {
@@ -183,7 +231,9 @@ public class AntColonyOptimization {
     }
 
     /**
-     * Select next city for each ant
+     * Method untuk memilih kota selanjutnya yang akan didatangi oleh semut
+     * @param ant : semut yang akan pergi ke kota selanjutnya
+     * @return index kota selanjutnya yang akan dikunjungi semut
      */
     private int selectNextCity(Ant ant) {
         int t = random.nextInt(numberOfCities - currentIndex);
@@ -212,7 +262,7 @@ public class AntColonyOptimization {
     }
 
     /**
-     * Calculate the next city picks probabilites
+     * Menghitung peluang semut mengambil kota selanjutnya
      */
     public void calculateProbabilities(Ant ant) {
         int i = ant.trail[currentIndex];
@@ -233,7 +283,7 @@ public class AntColonyOptimization {
     }
 
     /**
-     * Update trails that ants used
+     * Memperbarui jalur yang digunakan semut
      */
     private void updateTrails() {
         for (int i = 0; i < numberOfCities; i++) {
@@ -251,7 +301,7 @@ public class AntColonyOptimization {
     }
 
     /**
-     * Update the best solution
+     * Memperbarui solusi terbaik saat ini
      */
     private void updateBest() {
         if (bestTourOrder == null) {
@@ -268,7 +318,7 @@ public class AntColonyOptimization {
     }
 
     /**
-     * Clear trails after simulation
+     * Membersihkan jalur setelah simulasi
      */
     private void clearTrails() {
         for (int i = 0; i < numberOfCities; i++) {
