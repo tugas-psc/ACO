@@ -15,8 +15,8 @@ public class Ant
 
     protected void visitCity(int currentIndex, int city) 
     {
-        trail[currentIndex + 1] = city; //add to trail
-        visited[city] = true;           //update flag
+        trail[currentIndex + 1] = city; 
+        visited[city] = true;           
     }
 
     protected boolean visited(int i) 

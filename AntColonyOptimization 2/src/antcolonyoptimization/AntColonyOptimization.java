@@ -1,17 +1,18 @@
 package antcolonyoptimization;
 
-
+/*
+* Refrensi : https://www.baeldung.com/java-ant-colony-optimization
+* 
+*/
 import antcolonyoptimization.Ant;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.OptionalInt;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 /*
- * default
+ * default 
  * private double c = 1.0;             //number of trails
  * private double alpha = 1;           //pheromone importance
  * private double beta = 5;            //distance priority
@@ -21,17 +22,17 @@ import java.util.stream.IntStream;
  * private double randomFactor = 0.01; //introducing randomness
  * private int maxIterations = 1000;
  */
-//1.0 1 5 0.5 500 0.8 0.01 1000
+
 public class AntColonyOptimization {
 
     public String s = "";
-    private double c;             //number of trails
-    private double alpha;           //pheromone importance
-    private double beta;            //distance priority
-    private double evaporation;
-    private double Q;             //pheromone left on trail per ant
-    private double antFactor;     //no of ants per node
-    private double randomFactor; //introducing randomness
+    private double c;             //jumlah trails
+    private double alpha;           //nilai kepentingan pheromone
+    private double beta;            //nilai prioritas jarak
+    private double evaporation;     //koefisien penguapan pheromone
+    private double Q;             //jumlah pheromone yang ditinggalkan semut di jalur yang dilewati
+    private double antFactor;     //banyaknya semut yang digunakan per kota
+    private double randomFactor; //faktor random
 
     private int maxIterations;
 
@@ -111,17 +112,14 @@ public class AntColonyOptimization {
         }
     }
     
-    public String printCities(){
-        String res = "";
-        for(int i=0;i<numberOfCities;i++){
-            res += cities.get(i).getId()+" ";
-        }
-        return res;
-    }
-    
+    /**
+     * Method untuk memasukkan kota baru ke List kota
+     * @param newCity : kota baru yang akan dimasukkan ke List kota
+     */
     public void addCity(City newCity){
         this.cities.add(newCity);
     }
+    
     /**
      * Menghitung jarak dari masing-masing kota ke semua kota lainnya.
      */
@@ -140,27 +138,7 @@ public class AntColonyOptimization {
             }
         }
 
-//        s += ("\t");
-//        for (int i = 0; i < n; i++) {
-//            s += (cities.get(i).getId() + "\t");
-//        }
-//        s += "\n";
-//
-//        for (int i = 0; i < numberOfCities; i++) {
-//            s += (cities.get(i).getId() + "\t");
-//            for (int j = 0; j < numberOfCities; j++) {
-//                s += (cityMatrix[i][j] + "\t");
-//            }
-//            s += "\n";
-//        }
-//
-//        int sum = 0;
-////
-//        for (int i = 0; i < numberOfCities -1; i++) {
-//            sum += cityMatrix[i][i + 1];
-//        }
-//        sum += cityMatrix[numberOfCities -1 ][0];
-//        s += ("\nNaive solution 0-1-2-...-n-0 = " + sum + "\n");
+
         return cityMatrix;
     }
     /**
@@ -219,7 +197,7 @@ public class AntColonyOptimization {
     }
 
     /**
-     * At each iteration, move ants
+     * Pada setiap iterasi, pindahkan semut ke kota selanjutnya
      */
     private void moveAnts() {
         for (int i = currentIndex; i < numberOfCities - 1; i++) {
