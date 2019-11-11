@@ -208,7 +208,7 @@ public class AntColonyOptimization {
                 return i;
             }
         }
-        throw new RuntimeException("There are no other cities");
+        return numberOfCities-1;
     }
 
     /**

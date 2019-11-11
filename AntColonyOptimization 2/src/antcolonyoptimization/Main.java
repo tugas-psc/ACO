@@ -43,8 +43,8 @@ public class Main {
         }
         AntColonyOptimization aco = new AntColonyOptimization(trails,alpha,beta,evaporationFactor,q,antFactor,randomFactor,numberOfIterations,numberOfCities,cities);
         System.out.println(aco.printCities());
-        //aco.generateDistanceBetweenCities(numberOfCities);
+        aco.generateDistanceBetweenCities(numberOfCities);
         System.out.println("lala");
-        //aco.startAntOptimization();
+        aco.startAntOptimization();
     }
 }
